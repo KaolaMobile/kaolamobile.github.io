@@ -1,8 +1,8 @@
 {
-    "name": "hux-blog",
-    "title": "Hux Blog",
+    "name": "kaola-blog",
+    "title": "Kaola Mobile Team's Blog",
     "version": "1.0.0",
-    "homepage": "http://huxpro.github.io",
+    "homepage": "http://kaolamobile.github.io",
     "author": "Hux",
     "devDependencies": {
         "grunt": "~0.4.5",
@@ -13,7 +13,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/Huxpro/huxpro.github.io"
+        "url": "https://github.com/KaolaMobile/kaolamobile.github.io"
     },
     "scripts": {
         "preview": "cd _site; python -m SimpleHTTPServer 8020",
