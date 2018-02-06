@@ -5,6 +5,8 @@ subtitle:   "这是一个测试文章"
 date:       2018-02-06
 author:     "Test"
 header-img: "img/post-bg-js-version.jpg"
+tags:
+    -test
 ---
 
 ## 测试文章
