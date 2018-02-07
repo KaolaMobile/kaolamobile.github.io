@@ -4,7 +4,7 @@ title:      "考拉 Android 全局滑动返回及联动效果的实现"
 subtitle:   "滑动返回在 Android 的方案及实践"
 date:       2018-02-06
 author:     "FangzhenXu"
-header-img: "img/post-bg-unix-linux.jpg"
+header-img: "img/home-bg1.jpg"
 tags:
     -Android
     -SwipeBack
