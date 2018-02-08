@@ -28,33 +28,37 @@ SwipeBackLayout //滑动返回布局类<br>
 SwipeBackLayoutDragHelper  //修改ViewDragHelper后助手类<br>
 TranslucentHelper //代码中修改透明或者不透明的助手类<br>
 
-##代码层面的讲解
+## 代码层面的讲解
 ### 一. 设置activity为透明、activity跳转动画（TranslucentHelper 讲解）
 这个看起来很简单，但如果要兼容到API16及以下，会遇到过一个比较麻烦的页面切换动画问题：
 
 #### 1.1、通过activity的主题style进行设置
 ```
 <item name="android:windowBackground">@color/transparent</item>
-<item name="android:windowIsTranslucent">true</item>```
+<item name="android:windowIsTranslucent">true</item>
+```
 
-**遇到问题：**如果在某个activity的主题style中设置了android:windowIsTranslucent属性为true，那么该activity切换动画与没设置之前是不同的，有些手机切换动画会变得非常跳。所以需要自定义activity的切换动画。
+**遇到问题：** 如果在某个activity的主题style中设置了android:windowIsTranslucent属性为true，那么该activity切换动画与没设置之前是不同的，有些手机切换动画会变得非常跳。所以需要自定义activity的切换动画。
 接下来我们会想到通过主题style里的windowAnimationStyle来设置切换动画
 ```
 <item name="android:activityOpenEnterAnimation">@anim/activity_open_enter</item><!-- activity 新创建时进来的动画-->
 <item name="android:activityOpenExitAnimation">@anim/activity_open_exit</item><!-- 上层activity返回后，下层activity重新出现的动画-->
 <item name="android:activityCloseEnterAnimation">@anim/activity_close_enter</item><!-- 跳到新的activity后，该activity被隐藏时的动画-->
-<item name="android:activityCloseExitAnimation">@anim/activity_close_exit</item><!-- activity 销毁时的动画-->```
-**实践证明：**当android:windowIsTranslucent为true时，以上几个属性是无效的，而下面两个属性还是可以用。但是这两个属性一个是窗口进来动画，一个是窗口退出动画，明显是不够。
+<item name="android:activityCloseExitAnimation">@anim/activity_close_exit</item><!-- activity 销毁时的动画-->
+```
+**实践证明：** 当android:windowIsTranslucent为true时，以上几个属性是无效的，而下面两个属性还是可以用。但是这两个属性一个是窗口进来动画，一个是窗口退出动画，明显是不够。
 ```
 <item name="android:windowEnterAnimation">@anim/***</item>
-<item name="android:windowExitAnimation">@anim/***</item>```
+<item name="android:windowExitAnimation">@anim/***</item>
+```
 
 结合overridePendingTransition(int enterAnim, int exitAnim)可以复写窗口进来动画和窗口退出动画，这种我觉得最终可能是可以实现的，不过控制起来比较复杂：
 比如有A、B、C三个页面：
 A跳到B，进场页面B动画从右进来，出场页面A动画从左出去，可以直接在style中写死
 ```
 <item name="android:windowEnterAnimation">@anim/***</item>
-<item name="android:windowExitAnimation">@anim/***</item>```
+<item name="android:windowExitAnimation">@anim/***</item>
+```
 
 如果B返回到A，进场页面A动画从左进来，出场页面B动画从右出去，此时需要通过复写onBackPressed() 方法，<br>
 在其中添加overridePendingTransition(int enterAnim, int exitAnim)方法来改变动画。
@@ -69,6 +73,7 @@ A跳到B，进场页面B动画从右进来，出场页面A动画从左出去，�
 
 透明助手类（TranslucentHelper）里主要又有两个方法，一个是让activity变不透明，一个是让activity变透明，这两个都是通过反射来调用隐藏的系统api来实现的。因为较低的版本不支持代码中修改背景透明不透明，所以在类中有个静态变量mTranslucentState 来记录是否可以切换背景，这样低版本就不需要每次都反射通过捕获到的异常来做兼容方案。
 另外：发现有些手机支持背景变黑，但不支持背景变透明（中兴z9 mini 5.0.2系统）
+
 ```java
 public class TranslucentHelper {
     private static final String TRANSLUCENT_STATE = "translucentState";
@@ -717,4 +722,5 @@ private void dragTo(int left, int top, int dx, int dy) {
                         clampedDx, clampedDy);
             }
         }
-    }```
+    }
+    ```
