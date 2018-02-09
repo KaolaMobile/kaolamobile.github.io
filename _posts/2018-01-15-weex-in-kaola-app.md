@@ -4,7 +4,7 @@ title:      "基于 weex 的考拉移动端动态化方案"
 subtitle:   "考拉 App 的动态化方案设计及经验总结"
 date:       2018-01-15
 author:     "杨鑫"
-header-img: "img/bg3.jpg"
+header-img: "img/bg5.jpg"
 tags:
     -Android
     -Weex
