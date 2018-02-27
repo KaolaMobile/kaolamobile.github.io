@@ -28,7 +28,7 @@ tags:
 
 # 前言
 
-在上文[《如何设计一个优雅健壮的Android WebView？（上）》](http://iluhcm.com/2017/12/10/design-an-elegant-and-powerful-android-webview-part-one/)中，笔者分析了国内WebView的现状，以及在WebView开发过程中所遇到的一些坑。在踩坑的基础上，本文着重介绍WebView在开发过程中所需要注意的问题，这些问题大部分在网上找不到标准答案，但却是WebView开发过程中几乎都会遇到的。此外还会浅谈WebView优化，旨在给用户带来更好的WebView体验。
+在上文[《如何设计一个优雅健壮的Android WebView？（上）》](https://kaolamobile.github.io/2018/02/16/design-an-elegant-and-powerful-android-webview-part-one/)中，笔者分析了国内WebView的现状，以及在WebView开发过程中所遇到的一些坑。在踩坑的基础上，本文着重介绍WebView在开发过程中所需要注意的问题，这些问题大部分在网上找不到标准答案，但却是WebView开发过程中几乎都会遇到的。此外还会浅谈WebView优化，旨在给用户带来更好的WebView体验。
 
 # WebView实战操作
 
@@ -712,7 +712,7 @@ HttpDns，使用http协议向特定的DNS服务器进行域名解析请求，代
 
 ## WebView独立进程
 
-WebView实例在Android7.0系统以后，已经可以选择运行在一个独立进程上[^7]；8.0以后默认就是运行在独立的沙盒进程中[^8]，未来Google也在朝这个方向发展，具体的WebView历史可以参考上一篇文章[《如何设计一个优雅健壮的Android WebView？（上）》](http://iluhcm.com/2017/12/10/design-an-elegant-and-powerful-android-webview-part-one/)第一小节。
+WebView实例在Android7.0系统以后，已经可以选择运行在一个独立进程上[^7]；8.0以后默认就是运行在独立的沙盒进程中[^8]，未来Google也在朝这个方向发展，具体的WebView历史可以参考上一篇文章[《如何设计一个优雅健壮的Android WebView？（上）》](https://kaolamobile.github.io/2018/02/16/design-an-elegant-and-powerful-android-webview-part-one/)第一小节。
 
 Android7.0系统以后，WebView相对来说是比较稳定的，无论承载WebView的容器是否在主进程，都不需要担心WebView崩溃导致应用也跟着崩溃。然后7.0以下的系统就没有这么幸运了，特别是低版本的WebView。考虑应用的稳定性，我们可以把7.0以下系统的WebView使用一个独立进程的Activity来包装，这样即使WebView崩溃了，也只是WebView所在的进程发生了崩溃，主进程还是不受影响的。
 
