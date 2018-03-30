@@ -28,7 +28,7 @@ tags:
 
 # 前言
 
-在上文[《如何设计一个优雅健壮的Android WebView？（上）》](http://iluhcm.com/2017/12/10/design-an-elegant-and-powerful-android-webview-part-one/)中，笔者分析了国内WebView的现状，以及在WebView开发过程中所遇到的一些坑。在踩坑的基础上，本文着重介绍WebView在开发过程中所需要注意的问题，这些问题大部分在网上找不到标准答案，但却是WebView开发过程中几乎都会遇到的。此外还会浅谈WebView优化，旨在给用户带来更好的WebView体验。
+在上文[《如何设计一个优雅健壮的Android WebView？（上）》](https://kaolamobile.github.io/2018/02/16/design-an-elegant-and-powerful-android-webview-part-one/)中，笔者分析了国内WebView的现状，以及在WebView开发过程中所遇到的一些坑。在踩坑的基础上，本文着重介绍WebView在开发过程中所需要注意的问题，这些问题大部分在网上找不到标准答案，但却是WebView开发过程中几乎都会遇到的。此外还会浅谈WebView优化，旨在给用户带来更好的WebView体验。
 
 # WebView实战操作
 
@@ -161,7 +161,7 @@ protected void init() {
 3. 开始执行页面加载操作时，会回调`WebViewClient.onPageStarted(webview, url, favicon)`。在此方法中，可以重置重定向保护的变量(`mRedirectProtected`)，当然也可以在页面加载前重置，由于历史遗留代码问题，此处尚未省去优化。
 4. 加载页面的过程中，WebView会回调几个方法。
 	* `WebChromeClient.onReceivedTitle(webview, title)`，用来设置标题。需要注意的是，在部分Android系统版本中可能会回调多次这个方法，而且有时候回调的title是一个url，客户端可以针对这种情况进行特殊处理，避免在标题栏显示不必要的链接。
-	* `WebChromeClient.onProgressChanged(webview, progress)`，根据这个回调，可以控制进度条的进度（包括显示与隐藏）。一般情况下，想要达到100%的进度需要的时间较长（特别是首次加载），用户长时间等待进度条不消失必定会感到焦虑，影响体验。其实当progress达到80的时候，加载出来的页面已经基本可用了。因此，可以投机取巧，达到80%以后便可以认为进度条到100%了，事实上，国内厂商大部分都会提前隐藏进度条，让用户以为网页加载很快。
+	* `WebChromeClient.onProgressChanged(webview, progress)`，根据这个回调，可以控制进度条的进度（包括显示与隐藏）。一般情况下，想要达到100%的进度需要的时间较长（特别是首次加载），用户长时间等待进度条不消失必定会感到焦虑，影响体验。其实当progress达到80的时候，加载出来的页面已经基本可用了。事实上，国内厂商大部分都会提前隐藏进度条，让用户以为网页加载很快。
 	* `WebViewClient.shouldInterceptRequest(webview, request)`，无论是普通的页面请求(使用GET/POST)，还是页面中的异步请求，或者页面中的资源请求，都会回调这个方法，给开发一次拦截请求的机会。在这个方法中，我们可以进行静态资源的拦截并使用缓存数据代替，也可以拦截页面，使用自己的网络框架来请求数据。包括后面介绍的WebView免流方案，也和此方法有关。
 	* `WebViewClient.shouldOverrideUrlLoading(webview, request)`，如果遇到了重定向，或者点击了页面中的a标签实现页面跳转，那么会回调这个方法。可以说这个是WebView里面最重要的回调之一，后面`WebView与Native页面交互`一节将会详细介绍这个方法。
 	* `WebViewClient.onReceived**Error(webview, handler, error)`，加载页面的过程中发生了错误，会回调这个方法。主要是http错误以及ssl错误。在这两个回调中，我们可以进行异常上报，监控异常页面、过期页面，及时反馈给运营或前端修改。在处理ssl错误时，遇到不信任的证书可以进行特殊处理，例如对域名进行判断，针对自己公司的域名“放行”，防止进入丑陋的错误证书页面。也可以与Chrome一样，弹出ssl证书疑问弹窗，给用户选择的余地。
@@ -208,7 +208,7 @@ public boolean onJsPrompt(WebView view, String url, String message, String defau
 }
 ```
 
-由于`onJsPrompt`方法不确定是在什么时候回调，官方文档也没有说明这个方法是在主线程调用还是异步线程，因此判断一下Activity的生命周期是有必要的。js与Java的方法调用主要在`mJsApi.hijackJsPrompt(message)`中。
+`onJsPrompt`方法最终是在主线程中回调，判断一下WebView所在容器的生命周期是有必要的。js与Java的方法调用主要在`mJsApi.hijackJsPrompt(message)`中。
 
 ```
 public boolean hijackJsPrompt(String message) {
@@ -284,25 +284,13 @@ Object.defineProperty(CommandQueue.prototype, 'length',
 {get: function() {return this.queue.length + this.backQueue.length; }});
 
 var commandQueue = new CommandQueue();
-function filterObj(obj){
-    for(var i in obj){
-        if (obj.hasOwnProperty(i))
-        {
-            if(typeof obj[i] == 'string'){
-                obj[i] = obj[i].replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '');
-            }
-        }
-    }
-    return obj;
-}
 
 function _nativeExec(){
     var command = commandQueue.dequeue();
     if(command) {
         nativeReady = false;
         var jsoncommand = JSON.stringify(command);
-        // 做了base64转换。
-        var _temp = prompt(YIXIN_JSBRIDGE + base64encode(UTF8.encode(jsoncommand)),'');
+        var _temp = prompt(jsoncommand,'');
         return true;
     } else {
         return false;
@@ -311,73 +299,7 @@ function _nativeExec(){
 
 ```
 
-前端真正需要调用Java方法时，执行`window.WeiXinJSBridge.call`方法。
-
-```
-function doCall(request, success_cb, error_cb) {
-        if (jsonRPCIdTag in request && typeof success_cb !== 'undefined') {
-            _callbacks[request.id] = { success_cb: success_cb, error_cb: error_cb };
-        }
-        commandQueue.enqueue(request);
-        if(nativeReady) {
-            _nativeExec();
-        }
-    }
-
-    jsonRPC.call = function(method, params, success_cb, error_cb) {
-
-        var request = {
-            jsonrpc : jsonRPCVer,
-            method  : method,
-            params  : params,
-            id      : _current_id++
-        };
-        doCall(request, success_cb, error_cb);
-    };
-
-    jsonRPC.notify = function(method, params) {
-        var request = {
-            jsonrpc : jsonRPCVer,
-            method  : method,
-            params  : params,
-        };
-        doCall(request, null, null);
-    };
-
-    jsonRPC.ready = function() {
-        jsonRPC.nativeEvent.on('NativeReady', function(e) {
-            nativeReady = false;
-            if(!_nativeExec()) {
-                nativeReady = true;
-            }
-        });
-        jsonRPC.nativeEvent.Trigger('WeixinJSBridgeReady');
-    };
-
-    jsonRPC.invokeFinish = function() {
-        nativeReady = true;
-        _nativeExec();
-    };
-
-    jsonRPC.nativeEvent = {};
-
-    jsonRPC.nativeEvent.Trigger = function(type, detail) {
-        var ev = YixinEvent(type,detail);
-        document.dispatchEvent(ev);
-    };
-
-    var nativeEvent = {};
-
-    var doc = document;
-    
-    window.WeixinJSBridge = {};
-    window.jsonRPC = jsonRPC;
-    window.WeixinJSBridge.call = jsonRPC.notify;
-
-})();
-```
-
-注意，上面的代码有所删减，若需要执行完整的jsbridge功能，还需要做一些额外的配置。例如告知前端这段js代码已经注入成功的标记。
+上面的代码有所删减，若需要执行完整的jsbridge功能，还需要做一些额外的配置。例如告知前端这段js代码已经注入成功的标记。
 
 ## 什么时候注入js合适？
 
@@ -627,25 +549,6 @@ Cookie默认情况下是不需要做处理的，如果有特殊需求，如针�
 * Cookie持久化：`CookieManager.getInstance().flush()`
 * 针对某个主机设置Cookie：`CookieManager.getInstance().setCookie(String url, String value)`
 
-下面是一个给考拉M站设置Cookie的例子：
-
-```
-public static void setBoundCookies() {
-    CookieSyncManager.createInstance(HTApplication.getInstance());
-    long expiredTime = System.currentTimeMillis() + 10 * 60 * 1000;
-    CookieManager cookieManager = CookieManager.getInstance();
-    cookieManager.setAcceptCookie(true);
-    cookieManager.setCookie(NetConfig.KAOLA_M_HOST,
-            String.format("Expires=%s; domain=.kaola.com; path=/", expiredTime));
-    cookieManager.setCookie(NetConfig.KAOLA_M_HOST, "KAOLA_CLEAR_RELATION=1; domain=.kaola.com; path=/");
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        CookieManager.getInstance().flush();
-    } else {
-        CookieSyncManager.getInstance().sync();
-    }
-}
-```
-
 ## 如何调试WebView加载的页面？
 
 在Android 4.4版本以后，可以使用Chrome开发者工具调试WebView内容[^5]。调试需要在代码里设置打开调试开关。
@@ -712,7 +615,7 @@ HttpDns，使用http协议向特定的DNS服务器进行域名解析请求，代
 
 ## WebView独立进程
 
-WebView实例在Android7.0系统以后，已经可以选择运行在一个独立进程上[^7]；8.0以后默认就是运行在独立的沙盒进程中[^8]，未来Google也在朝这个方向发展，具体的WebView历史可以参考上一篇文章[《如何设计一个优雅健壮的Android WebView？（上）》](http://iluhcm.com/2017/12/10/design-an-elegant-and-powerful-android-webview-part-one/)第一小节。
+WebView实例在Android7.0系统以后，已经可以选择运行在一个独立进程上[^7]；8.0以后默认就是运行在独立的沙盒进程中[^8]，未来Google也在朝这个方向发展，具体的WebView历史可以参考上一篇文章[《如何设计一个优雅健壮的Android WebView？（上）》](https://kaolamobile.github.io/2018/02/16/design-an-elegant-and-powerful-android-webview-part-one/)第一小节。
 
 Android7.0系统以后，WebView相对来说是比较稳定的，无论承载WebView的容器是否在主进程，都不需要担心WebView崩溃导致应用也跟着崩溃。然后7.0以下的系统就没有这么幸运了，特别是低版本的WebView。考虑应用的稳定性，我们可以把7.0以下系统的WebView使用一个独立进程的Activity来包装，这样即使WebView崩溃了，也只是WebView所在的进程发生了崩溃，主进程还是不受影响的。
 
@@ -732,10 +635,207 @@ public static boolean isWebInMainProcess() {
 }
 ```
 
-## WebView免流实现（待实现）
+## WebView免流
 
-1. 全局代理
-2. `WebViewClient.shouldInterceptRequest()`，IP替换
+从去年开始，市场上出现了一批互联网套餐卡，如腾讯王卡、蚂蚁宝卡、京东强卡、阿里鱼卡、网易白金卡等，这些互联网套餐相比传统的运营商套餐来说，资费便宜，流量多，甚至某些卡还拥有特殊权限——对某些应用免流。如[网易白金卡](https://bjk.163.com/)，对于网易系与百度系的部分应用实现免流。
+
+### 免流原理
+
+市面上常见的免流应用，原理无非就是走“特殊通道”，让这一部分的流量不计入运营商的流量统计平台中。Android中要实现这种“特殊通道”，有几种方案。
+
+1. 微屁恩。目前运营商貌似没有采用这种方案，但确实是可行的。由于国情，不多介绍，懂的自然懂。
+2. 全局代理。把所有的流量中转到代理服务器中，代理服务器再根据流量判断是否属于免流流量。
+3. IP直连。走这个IP的所有流量，服务器判断是否免流。
+
+### WebView免流方案
+
+对于上面提到的几种方案，native页面所有的请求都是应用层发起的，实际上都比较好实现，但WebView的页面和资源请求是通过JNI发起的，想要拦截请求的话，需要一些功夫。网罗网上的所有方案，目前觉得可行的有两种，分别是全局代理和拦截`WebViewClient.shouldInterceptRequest()`。
+
+#### 全局代理
+
+由于WebView并没有提供接口针对具体的WebView实例设置代理，所以我们只能进行全局代理。设置全局代理时，需要通知系统代理环境发生了改变，不幸地是，Android并没有提供公开的接口，这就导致了我们只能hook系统接口，根据不同的系统版本来实现通知的目的[^9]、[^10]。6.0以后的系统，尚未尝试是否可行，根据公司同事的反馈，和5.0系统的方案是一致的。
+
+```
+/**
+ * Set Proxy for Android 4.1 - 4.3.
+ */
+@SuppressWarnings("all")
+private static boolean setProxyJB(WebView webview, String host, int port) {
+    Log.d(LOG_TAG, "Setting proxy with 4.1 - 4.3 API.");
+
+    try {
+        Class wvcClass = Class.forName("android.webkit.WebViewClassic");
+        Class wvParams[] = new Class[1];
+        wvParams[0] = Class.forName("android.webkit.WebView");
+        Method fromWebView = wvcClass.getDeclaredMethod("fromWebView", wvParams);
+        Object webViewClassic = fromWebView.invoke(null, webview);
+
+        Class wv = Class.forName("android.webkit.WebViewClassic");
+        Field mWebViewCoreField = wv.getDeclaredField("mWebViewCore");
+        Object mWebViewCoreFieldInstance = getFieldValueSafely(mWebViewCoreField, webViewClassic);
+
+        Class wvc = Class.forName("android.webkit.WebViewCore");
+        Field mBrowserFrameField = wvc.getDeclaredField("mBrowserFrame");
+        Object mBrowserFrame = getFieldValueSafely(mBrowserFrameField, mWebViewCoreFieldInstance);
+
+        Class bf = Class.forName("android.webkit.BrowserFrame");
+        Field sJavaBridgeField = bf.getDeclaredField("sJavaBridge");
+        Object sJavaBridge = getFieldValueSafely(sJavaBridgeField, mBrowserFrame);
+
+        Class ppclass = Class.forName("android.net.ProxyProperties");
+        Class pparams[] = new Class[3];
+        pparams[0] = String.class;
+        pparams[1] = int.class;
+        pparams[2] = String.class;
+        Constructor ppcont = ppclass.getConstructor(pparams);
+
+        Class jwcjb = Class.forName("android.webkit.JWebCoreJavaBridge");
+        Class params[] = new Class[1];
+        params[0] = Class.forName("android.net.ProxyProperties");
+        Method updateProxyInstance = jwcjb.getDeclaredMethod("updateProxy", params);
+
+        updateProxyInstance.invoke(sJavaBridge, ppcont.newInstance(host, port, null));
+    } catch (Exception ex) {
+        Log.e(LOG_TAG, "Setting proxy with >= 4.1 API failed with error: " + ex.getMessage());
+        return false;
+    }
+
+    Log.d(LOG_TAG, "Setting proxy with 4.1 - 4.3 API successful!");
+    return true;
+}
+
+/**
+ * Set Proxy for Android 5.0.
+ */
+public static void setWebViewProxyL(Context context, String host, int port) {
+    System.setProperty("http.proxyHost", host);
+    System.setProperty("http.proxyPort", port + "");
+    try {
+        Context appContext = context.getApplicationContext();
+        Class applictionClass = Class.forName("android.app.Application");
+        Field mLoadedApkField = applictionClass.getDeclaredField("mLoadedApk");
+        mLoadedApkField.setAccessible(true);
+        Object mloadedApk = mLoadedApkField.get(appContext);
+        Class loadedApkClass = Class.forName("android.app.LoadedApk");
+        Field mReceiversField = loadedApkClass.getDeclaredField("mReceivers");
+        mReceiversField.setAccessible(true);
+        ArrayMap receivers = (ArrayMap) mReceiversField.get(mloadedApk);
+        for (Object receiverMap : receivers.values()) {
+            for (Object receiver : ((ArrayMap) receiverMap).keySet()) {
+                Class clazz = receiver.getClass();
+                if (clazz.getName().contains("ProxyChangeListener")) {
+                    Method onReceiveMethod = clazz.getDeclaredMethod("onReceive", Context.class, Intent.class);
+                    Intent intent = new Intent(Proxy.PROXY_CHANGE_ACTION);
+                    onReceiveMethod.invoke(receiver, appContext, intent);
+                }
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+```
+
+需要注意的是，在WebView退出时，需要重置代理。
+
+#### 拦截`WebViewClient.shouldInterceptRequest()`
+
+拦截`WebViewClient.shouldInterceptRequest()`的目的是使用免流的第三种方案——IP替换。直接看代码。
+
+```
+@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+@Override
+public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+    WebResourceResponse resourceResponse = CandyWebCache.getsInstance().getResponse(view, request);
+    if (request.getUrl() != null && request.getMethod().equalsIgnoreCase("get")) {
+        Uri uri = request.getUrl();
+        String url = uri.toString();
+        String scheme = uri.getScheme().trim();
+        String host = uri.getHost();
+        String path = uri.getPath();
+        if (TextUtils.isEmpty(path) || TextUtils.isEmpty(host)) {
+            return null;
+        }
+        // HttpDns解析css文件的网络请求及图片请求
+        if ((scheme.equalsIgnoreCase("http") || scheme.equalsIgnoreCase("https")) && (path.endsWith(".css")
+                || path.endsWith(".png")
+                || path.endsWith(".jpg")
+                || path.endsWith(".gif")
+                || path.endsWith(".js"))) {
+            try {
+                URL oldUrl = new URL(uri.toString());
+                URLConnection connection;
+                // 获取HttpDns域名解析结果
+                List<String> ips = HttpDnsManager.getInstance().getIPListByHostAsync(host);
+                if (!ListUtils.isEmpty(ips)) {
+                    String ip = ips.get(0);
+                    String newUrl = url.replaceFirst(oldUrl.getHost(), ip);
+                    connection = new URL(newUrl).openConnection(); // 设置HTTP请求头Host域
+                    connection.setRequestProperty("Host", oldUrl.getHost());
+                } else {
+                    connection = new URL(url).openConnection(); // 设置HTTP请求头Host域
+                }
+                String fileExtension = MimeTypeMap.getFileExtensionFromUrl(url);
+                String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
+                return new WebResourceResponse(mimeType, "UTF-8", connection.getInputStream());
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    return super.shouldInterceptRequest(view, request);
+}
+
+@Override
+public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+    if (!TextUtils.isEmpty(url) && Uri.parse(url).getScheme() != null) {
+        Uri uri = Uri.parse(url);
+        String scheme = uri.getScheme().trim();
+        String host = uri.getHost();
+        String path = uri.getPath();
+        if (TextUtils.isEmpty(path) || TextUtils.isEmpty(host)) {
+            return null;
+        }
+        // HttpDns解析css文件的网络请求及图片请求
+        if ((scheme.equalsIgnoreCase("http") || scheme.equalsIgnoreCase("https")) && (path.endsWith(".css")
+                || path.endsWith(".png")
+                || path.endsWith(".jpg")
+                || path.endsWith(".gif")
+                || path.endsWith(".js"))) {
+            try {
+                URL oldUrl = new URL(uri.toString());
+                URLConnection connection;
+                // 获取HttpDns域名解析结果
+                List<String> ips = HttpDnsManager.getInstance().getIPListByHostAsync(host);
+                if (!ListUtils.isEmpty(ips)) {
+                    String ip = ips.get(0);
+                    String newUrl = url.replaceFirst(oldUrl.getHost(), ip);
+                    connection = new URL(newUrl).openConnection(); // 设置HTTP请求头Host域
+                    connection.setRequestProperty("Host", oldUrl.getHost());
+                } else {
+                    connection = new URL(url).openConnection(); // 设置HTTP请求头Host域
+                }
+                String fileExtension = MimeTypeMap.getFileExtensionFromUrl(url);
+                String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
+                return new WebResourceResponse(mimeType, "UTF-8", connection.getInputStream());
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    return super.shouldInterceptRequest(view, url);
+}
+```
+
+使用此种方案，还可以把WebView网络请求与native网络请求使用的框架统一起来，方便管理。
+
+# 总结
+
+本文介绍了WebView在开发中的一些实践经验和优化流程。为了满足业务需求，WebView着实提供了非常丰富的接口供应用层处理业务逻辑。针对WebView的二次开发，本文介绍了一些常用的回调处理逻辑以及开发过程中总结下的经验。由于是经验，不一定是准确的，若有错误的地方，敬请指出纠正，不胜感激！
 
 
 -----
@@ -750,6 +850,8 @@ public static boolean isWebInMainProcess() {
 6. <https://www.jianshu.com/p/5e7075f4875f>
 7. <https://developer.android.com/about/versions/nougat/android-7.0.html#webview>
 8. <https://developer.android.com/about/versions/oreo/android-8.0-changes.html#security-all>
+9. <https://stackoverflow.com/questions/25272393/android-webview-set-proxy-programmatically-on-android-l/25485747#25485747>
+10. <https://stackoverflow.com/questions/4488338/webview-android-proxy>
 
 [^1]: <https://medium.com/@filipe.batista/inject-javascript-into-webview-2b702a2a029f>
 [^2]: <https://stackoverflow.com/questions/21552912/android-web-view-inject-local-javascript-file-to-remote-webpage>
@@ -759,3 +861,5 @@ public static boolean isWebInMainProcess() {
 [^6]: <https://www.jianshu.com/p/5e7075f4875f>
 [^7]: <https://developer.android.com/about/versions/nougat/android-7.0.html#webview>
 [^8]: <https://developer.android.com/about/versions/oreo/android-8.0-changes.html#security-all>
+[^9]: <https://stackoverflow.com/questions/25272393/android-webview-set-proxy-programmatically-on-android-l/25485747#25485747>
+[^10]: <https://stackoverflow.com/questions/4488338/webview-android-proxy>

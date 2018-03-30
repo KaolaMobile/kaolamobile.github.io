@@ -6,7 +6,7 @@ title:      "如何设计一个优雅健壮的Android WebView？（上）"
 
 subtitle:   "基于考拉电商平台的WebView实践"
 
-date:       2017-12-10
+date:       2018-02-16
 
 author:     "黎星"
 
@@ -607,7 +607,7 @@ WebView中的文件上传功能，当我们在Web页面上点击选择文件的�
 
 # 总结
 
-限于篇幅，《如何设计一个优雅健壮的Android WebView？（上）》先介绍到这里。本文介绍了目前Android里的WebView现状，以及由于现状的不可改变导致遗留下的一些坑。所幸，世界上没有什么代码问题是一个程序员不能解决的，如果有，那就用两个程序员解决。既然我们已经把前人留下的一些坑填了，那么是时候构造一个可以用于生产环境的WebView了！《如何设计一个优雅健壮的Android WebView？（下）》将会介绍如何打造WebView的实战操作，以及为了用户更好的体验，提出的一些WebView优化策略，敬请期待。
+限于篇幅，[《如何设计一个优雅健壮的Android WebView？（上）》](https://kaolamobile.github.io/2018/02/16/design-an-elegant-and-powerful-android-webview-part-one/)先介绍到这里。本文介绍了目前Android里的WebView现状，以及由于现状的不可改变导致遗留下的一些坑。所幸，世界上没有什么代码问题是一个程序员不能解决的，如果有，那就用两个程序员解决。既然我们已经把前人留下的一些坑填了，那么是时候构造一个可以用于生产环境的WebView了！[《如何设计一个优雅健壮的Android WebView？（下）》](https://kaolamobile.github.io/2018/02/27/design-an-elegant-and-powerful-android-webview-part-two/)将会介绍如何打造WebView的实战操作，以及为了用户更好的体验，提出的一些WebView优化策略，敬请期待。
 
 # 参考链接
 
