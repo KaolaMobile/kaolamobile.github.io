@@ -611,19 +611,6 @@ WebView中的文件上传功能，当我们在Web页面上点击选择文件的�
 
 # 参考链接
 
-1. <https://developer.chrome.com/multidevice/webview/overview>
-2. <https://developer.android.com/about/versions/nougat/android-7.0.html#webview>
-3. <https://developer.android.com/about/versions/oreo/android-8.0-changes.html#o-sec>
-4. <https://stackoverflow.com/questions/30078217/why-openfilechooser-in-webchromeclient-is-hidden-from-the-docs-is-it-safe-to-us>
-5. <http://blog.csdn.net/self_study/article/details/55046348>
-6. <http://qbeenslee.com/article/android-webview-302-redirect/>
-7. <https://juejin.im/entry/5977598d51882548c0045bde>
-8. <http://www.cnblogs.com/zimengfang/p/6183869.html>
-9. <http://blog.csdn.net/dg_summer/article/details/78105582>
-10. <https://issuetracker.google.com/issues/36918490>
-
-
-
 [^1]: <https://developer.chrome.com/multidevice/webview/overview>
 [^2]: <https://developer.android.com/about/versions/nougat/android-7.0.html#webview>
 [^3]: <https://developer.android.com/about/versions/oreo/android-8.0-changes.html#o-sec>

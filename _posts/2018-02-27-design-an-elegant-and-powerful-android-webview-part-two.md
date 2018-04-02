@@ -842,17 +842,6 @@ public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
 
 # 参考链接
 
-1. <https://medium.com/@filipe.batista/inject-javascript-into-webview-2b702a2a029f>
-2. <https://stackoverflow.com/questions/21552912/android-web-view-inject-local-javascript-file-to-remote-webpage>
-3. <https://stackoverflow.com/questions/23172247/android-webview-javascript-injection>
-4. <https://developer.android.com/about/versions/nougat/android-7.0.html#webview>
-5. <https://developers.google.com/web/tools/chrome-devtools/remote-debugging/webviews>
-6. <https://www.jianshu.com/p/5e7075f4875f>
-7. <https://developer.android.com/about/versions/nougat/android-7.0.html#webview>
-8. <https://developer.android.com/about/versions/oreo/android-8.0-changes.html#security-all>
-9. <https://stackoverflow.com/questions/25272393/android-webview-set-proxy-programmatically-on-android-l/25485747#25485747>
-10. <https://stackoverflow.com/questions/4488338/webview-android-proxy>
-
 [^1]: <https://medium.com/@filipe.batista/inject-javascript-into-webview-2b702a2a029f>
 [^2]: <https://stackoverflow.com/questions/21552912/android-web-view-inject-local-javascript-file-to-remote-webpage>
 [^3]: <https://stackoverflow.com/questions/23172247/android-webview-javascript-injection>
