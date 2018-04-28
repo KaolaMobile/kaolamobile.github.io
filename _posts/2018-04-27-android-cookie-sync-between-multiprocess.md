@@ -26,13 +26,6 @@ tags:
     
 ---
 
----
-title: 记一次多进程同步Cookie的解惑历程
-categories: Android
-date: 2018-04-27 14:26:55
-tags: [Android, WebView, Cookie, CookieManager, MultiProcess]
----
-
 # 前言
 
 谈起Cookie，如果没有了解过它，可能会望文生畏。做过WebView开发的人可能会对它比较了解。Android的Cookie是由系统去管理的，其特点是会被持久化成一个db文件，保存在`/data/data/{packageName}/app_webview/Cookies`中（不同系统、不同浏览器实现可能不一样，但大体如此）。通常，网站的登录信息是使用Cookie来保存的，如果App也是使用Cookie来实现鉴权，那么在WebView和App之间就需要建立一套Cookie同步机制。
