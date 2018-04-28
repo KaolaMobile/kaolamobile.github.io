@@ -240,8 +240,5 @@ Android中所有与Cookie的操作都与CookieManager有关，上面的几种猜
 
 # 参考链接
 
-1. <http://www.cnblogs.com/zhangyoushugz/archive/2012/12/01/2797647.html>
-2. <https://stackoverflow.com/questions/19112357/java-simpledateformatyyyy-mm-ddthhmmssz-gives-timezone-as-ist>
-
 [^1]: http://www.cnblogs.com/zhangyoushugz/archive/2012/12/01/2797647.html
 [^2]: https://stackoverflow.com/questions/19112357/java-simpledateformatyyyy-mm-ddthhmmssz-gives-timezone-as-ist
