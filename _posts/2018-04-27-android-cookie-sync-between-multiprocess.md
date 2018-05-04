@@ -103,7 +103,7 @@ public final class WebviewCookieHandler implements CookieJar {
 
 ## 第一个猜想——Cookie持久化时间
 
-> WebView访问一个url，B进程的WebView写入Cookie以后，没有立即写入Cookies.db持久化，导致B进程读取不到最新的Cookie。
+> WebView访问一个url，B进程的WebView写入Cookie以后，没有立即写入Cookies.db持久化，导致A进程读取不到最新的Cookie。
 
 WebView在加载url时，服务端返回需要写入的Cookie可以使用Chrome Inspect来查看。针对WebView的Cookie持久化时机，我们可以做一个简单的实验。
 
