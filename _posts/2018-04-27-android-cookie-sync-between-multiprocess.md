@@ -89,9 +89,9 @@ public final class WebviewCookieHandler implements CookieJar {
 
 # 多进程Cookie同步
 
-但是如果App和WebView处于不同的进程，事情就没那么简单了。由于不同进程之间数据是不共享的，进程之间的Cookie同步就成了一个问题。随后的测试发现，进程之间的Cookie数据不一定同步，但App的多进程是共享一个Cookies文件的。我们遇到的问题是，WebView进程访问携带了特定Cookie的url后，这些Cookie并没有同步到主进程。于是，带着层层疑问，我们开始了进程间同步Cookie的猜想实验。考虑一下两个进程间可能导致Cookie数据不一致的地方（以下假设App在A进程，WebView在B进程）：
+但是如果App和WebView处于不同的进程，事情就没那么简单了。由于不同进程之间数据是不共享的，进程之间的Cookie同步就成了一个问题。随后的测试发现，App的多进程间是共享同一个Cookies文件的，但进程之间的Cookie数据不一定能够实时同步。我们遇到的问题是，WebView进程访问携带了特定Cookie的url后，这些Cookie并没有同步到主进程。于是，带着层层疑问，我们开始了进程间同步Cookie的猜想实验。考虑一下两个进程间可能导致Cookie数据不一致的地方（以下假设App在A进程，WebView在B进程）：
 
-1. WebView访问一个url，B进程的WebView写入Cookie以后，没有立即写入Cookies.db持久化，导致B进程读取不到最新的Cookie；
+1. WebView访问一个url，B进程的WebView写入Cookie以后，没有立即写入Cookies.db持久化，导致A进程读取不到最新的Cookie；
 2. 由于Cookie是和WebView挂钩的，可能需要在A进程创建一个WebView来让Cookie在进程间同步；
 3. A进程需要调用`CookieManager.getInstance().setAcceptCookie(true)`保证A进程能够读取到Cookie；
 4. B进程的Cookie可能失效了，导致A进程读取不到Cookie（后面解释为什么会出现这种情况）；
