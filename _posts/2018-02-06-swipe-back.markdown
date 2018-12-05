@@ -6,8 +6,8 @@ date:       2018-02-06
 author:     "许方镇"
 header-img: "img/bg7.jpg"
 tags:
-    -Android
-    -SwipeBack
+    Android
+    SwipeBack
 ---
 
 ## 前言

@@ -6,8 +6,8 @@ date:       2018-04-03
 author:     "许方镇"
 header-img: "img/bg5.jpg"
 tags:
-    -Android
-    -NestedScroll
+    Android
+    NestedScroll
 ---
 
 ## VerticalNestedScrollLayout的使用

@@ -6,8 +6,8 @@ date:       2018-01-15
 author:     "杨鑫"
 header-img: "img/bg5.jpg"
 tags:
-    -Android
-    -Weex
+    Android
+    Weex
 ---
 
 ### 目录：

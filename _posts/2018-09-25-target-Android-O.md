@@ -6,7 +6,7 @@ date:       2018-09-25
 author:     "王晨彦"
 header-img: "img/bg8.jpg"
 tags:
-    -Android O
+    Android O
 ---
 
 # Android O 适配详细指南

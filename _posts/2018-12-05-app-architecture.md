@@ -6,7 +6,7 @@ date:       2018-12-05
 author:     "石翔飞"
 header-img: "img/bg15.jpg"
 tags:
-    -Android Architecture
+    Android Architecture
 ---
 
 # 浅谈构架模式

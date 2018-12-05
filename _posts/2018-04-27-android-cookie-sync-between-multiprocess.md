@@ -14,15 +14,15 @@ header-img: "img/bg9.jpg"
 
 tags:
 
-    -Android
+    Android
 
-    -WebView
+    WebView
     
-    -Cookie
+    Cookie
     
-    -CookieManager
+    CookieManager
     
-    -MultiProcess
+    MultiProcess
     
 ---
 

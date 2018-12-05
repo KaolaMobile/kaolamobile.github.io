@@ -14,15 +14,15 @@ header-img: "img/bg9.jpg"
 
 tags:
 
-    -Android
+    Android
 
-    -WebView
+    WebView
     
-    -301/302
+    301/302
     
-    -Redirect
+    Redirect
     
-    -POST
+    POST
     
 ---
 
