@@ -33,7 +33,7 @@ tags:
     - [四、Android Architecture Components（AAC）](#四android-architecture-componentsaac)
         - [4.1 生命周期变化所带来的问题](#41-生命周期变化所带来的问题)
         - [4.2 Lifecycle](#42-lifecycle)
-        - [4.3 声明周期组件可感知的例子](#43-声明周期组件可感知的例子)
+        - [4.3 生命周期组件可感知的例子](#43-生命周期组件可感知的例子)
         - [4.4 如何感知 Activity 生命周期变化](#44-如何感知-activity-生命周期变化)
         - [4.5 如何感知 Fragment 生命周期变化](#45-如何感知-fragment-生命周期变化)
         - [4.6 利用 LifecycleRegistry 统一分发 Event](#46-利用-lifecycleregistry-统一分发-event)
@@ -297,7 +297,7 @@ State 和 Event 之间的关系用下图表示:
 
 ![ss](https://haitao.nos.netease.com/0d6597b2-f239-4a31-b2db-b47dd25b9c70_1394_798.png)
 
-### 4.3 声明周期组件可感知的例子
+### 4.3 生命周期组件可感知的例子
 
 比如在考拉的曝光打点框架中，利用 LifecycleOwner 生命周期的变化，主动进行曝光逻辑，省去业务层需要考虑生命周期的额外处理：
 
