@@ -4,7 +4,7 @@ title:      "浅谈构架模式"
 subtitle:   ""
 date:       2018-12-05
 author:     "石翔飞"
-header-img: "img/bg5.jpg"
+header-img: "img/bg15.jpg"
 tags:
     -Android Architecture
 ---
